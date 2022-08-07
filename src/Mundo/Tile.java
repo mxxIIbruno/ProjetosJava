@@ -8,8 +8,6 @@ import java.awt.image.BufferedImage;
 
 public class Tile {
 
-    public static BufferedImage empty = Game.sprite.getSprite(16, 32, 16, 16);
-
     public int x, y;
     public BufferedImage sprite;
 

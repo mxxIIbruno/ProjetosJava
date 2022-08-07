@@ -1,9 +1,7 @@
 package main;
 
 import Mundo.Mundo;
-import entidades.Ceu;
-import entidades.Entity;
-import entidades.Player;
+import entidades.*;
 import graficos.Sprintsheet;
 
 import javax.swing.JFrame;
@@ -28,7 +26,7 @@ public class Game extends Canvas implements Runnable, KeyListener {
     public static int HEIGHT = 160;
     public static int SCALE = 4;
 
-    private BufferedImage fundo;
+    public static BufferedImage fundo;
     public static List<Entity> entidades;
     public static Sprintsheet sprite;
     public static Mundo mundo;
@@ -38,14 +36,24 @@ public class Game extends Canvas implements Runnable, KeyListener {
     public static List<Ceu> ceuvetor;
     public static Sprintsheet ceu;
 
+    public static List<Cenoura> cenoura;
+    public static List<Inimigo> inimigo;
+
+    public static UserInterface ui;
+
+    public int level = 1, levelmaximo = 2;
+
     public Game() {
         addKeyListener(this);
         this.setPreferredSize(new Dimension(WIDTH*SCALE, HEIGHT*SCALE));
         initFrame();
+        ui = new UserInterface();
         fundo = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         entidades = new ArrayList<Entity>();
         sprite = new Sprintsheet("/spritesheet.png");
         ceuvetor = new ArrayList<Ceu>();
+        cenoura = new ArrayList<Cenoura>();
+        inimigo = new ArrayList<Inimigo>();
         ceu = new Sprintsheet("/ceusprite.png");
         player = new Player(0,0,16, 16, sprite.getSprite(32,0,16,16));
         entidades.add(player);
@@ -83,14 +91,36 @@ public class Game extends Canvas implements Runnable, KeyListener {
     }
 
     public void tick() {
+
+        if (inimigo.size() == 0) {
+            level++;
+            if (level > levelmaximo) {
+                level = 1;
+            }
+            String Level = "level" + level + ".png";
+            Mundo.newlevel(Level);
+        }
+
         for (int i = 0; i < entidades.size(); i++) {
             Entity entidade = entidades.get(i);
             entidade.tick();
         }
+
         for (int i = 0; i < ceuvetor.size(); i++){
             Ceu entidade = ceuvetor.get(i);
             entidade.tick();
         }
+
+        for (int i = 0; i < cenoura.size(); i++) {
+            Cenoura entidade = cenoura.get(i);
+            entidade.tick();
+        }
+
+        for (int i = 0; i < inimigo.size(); i++) {
+            Inimigo entidade = inimigo.get(i);
+            entidade.tick();
+        }
+
     }
 
     public void render() {
@@ -115,9 +145,22 @@ public class Game extends Canvas implements Runnable, KeyListener {
             entidade.render(g);
         }
 
+        for (int i = 0; i < cenoura.size(); i ++) {
+            Cenoura entidade = cenoura.get(i);
+            entidade.render(g);
+        }
+
+        for (int i = 0; i < inimigo.size(); i++) {
+            Inimigo entidade = inimigo.get(i);
+            entidade.render(g);
+        }
+
+        ui.render(g);
+
         g = buffer.getDrawGraphics();
         g.drawImage(fundo, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
         buffer.show();
+
     }
 
     @Override

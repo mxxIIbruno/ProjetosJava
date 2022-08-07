@@ -12,7 +12,7 @@ public class Player extends Entity {
 
     public boolean right, left, down, up;
     public double speed = 1.0;
-    public static double life = 100, maxLife = 100;
+    public double life = 100, maxLife = 100;
 
     public int direita = 1, esquerda = 0;
     public int direcaoAtual = direita;
@@ -23,12 +23,16 @@ public class Player extends Entity {
     public boolean isJump = false;
     public int jumpHeight = 36;
     public int jumpFrames = 0;
+    public Inimigo p1;
+    public Cenoura vida;
 
     public int movimentacao = 0;
     public int frames = 0, maxFrames = 5, index = 0, maxIndex = 3;
 
     public BufferedImage[] playerRight;
     public BufferedImage[] playerLeft;
+
+    public int posx, posy;
 
     public Player(int x, int y, int width, int height, BufferedImage sprite) {
         super(x, y, width, height, sprite);
@@ -43,12 +47,26 @@ public class Player extends Entity {
         }
     }
 
+    @SuppressWarnings("unused")
     public void tick() {
 
         movimentacao = 0;
 
-        if(!colisao((int) x, (int) (y + 1)) && jump == false) {
+        if(!colisao((int) x, (int) (y + 1)) && isJump == false) {
             y += 2;
+            for (int i = 0; i < Game.inimigo.size(); i++) {
+                Inimigo e = Game.inimigo.get(i);
+                if (e instanceof Inimigo) {
+                    if (damage(this.getX(), this.getY() - 8)) {
+                        isJump = true;
+                        ((Inimigo) p1).life--;
+                        if (((Inimigo) p1).life == 0) {
+                            Game.inimigo.remove(p1);
+                        }
+                    }
+                }
+                break;
+            }
         }
 
         if(right && !colisao((int)(x + speed), this.getY())) {
@@ -96,6 +114,29 @@ public class Player extends Entity {
             }
         }
 
+        if (damage(this.getX(), this.getY())) {
+            life -= 0.45;
+        }
+
+        if (vida(this.getX(), this.getY()) && life < 100) {
+            life += 10;
+            if (life > 100) {
+                life = 100;
+            }
+            Game.cenoura.remove(vida);
+        }
+
+        if (check(this.getX(), this.getY())) {
+            posx = this.getX();
+            posy = this.getY();
+        }
+
+        if (life <= 0) {
+            setX(posx);
+            setY(posy);
+            life = 100;
+        }
+
         Camera.x = Camera.Clamp(this.getX() - (Game.WIDTH / 2), 0, Mundo.WIDTH * 16 - Game.WIDTH);
         Camera.y = Camera.Clamp(this.getY() - (Game.HEIGHT / 2), 0, Mundo.HEIGHT * 16 - Game.HEIGHT);
 
@@ -108,6 +149,49 @@ public class Player extends Entity {
             if(entidade instanceof Solido) {
                 Rectangle solido = new Rectangle(entidade.getX() + maskx, entidade.getY() + masky, maskw, maskh);
                 if(player.intersects(solido)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean check(int nextx, int nexty) {
+        Rectangle player = new Rectangle(nextx + maskx, nexty + masky, maskw, maskh);
+        for (int i = 0; i < Game.entidades.size(); i++) {
+            Entity entidade = Game.entidades.get(i);
+            if (entidade instanceof Check) {
+                Rectangle solido = new Rectangle(entidade.getX() + maskx, entidade.getY() + masky, maskw, maskh);
+                if (player.intersects(solido)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean damage(int nextx, int nexty) {
+        Rectangle player = new Rectangle(nextx + maskx, nexty + masky, maskw, maskh);
+        for (int i = 0; i < Game.inimigo.size(); i++) {
+            Inimigo entidade = Game.inimigo.get(i);
+            if (entidade instanceof Inimigo) {
+                Rectangle solido = new Rectangle(entidade.getX() + maskx, entidade.getY() + masky, maskw, maskh);
+                if (player.intersects(solido)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean vida(int nextx, int nexty) {
+        Rectangle player = new Rectangle(nextx + maskx, nexty + masky, maskw, maskh);
+        for (int i = 0; i < Game.cenoura.size(); i++) {
+            Cenoura cenoura = Game.cenoura.get(i);
+            if (cenoura instanceof Cenoura) {
+                Rectangle solido = new Rectangle(cenoura.getX() + maskx, cenoura.getY() + masky, maskw, maskh);
+                if (player.intersects(solido)) {
+                    vida = cenoura;
                     return true;
                 }
             }

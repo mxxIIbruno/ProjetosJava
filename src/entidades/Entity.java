@@ -8,10 +8,18 @@ import java.awt.image.BufferedImage;
 
 public class Entity {
 
+    private int maskx, masky, mwidth, mheight;
     public static BufferedImage chao = Game.sprite.getSprite(0,0,16,16);
     public static BufferedImage chaoGRAMA = Game.sprite.getSprite(16, 0, 16, 16);
+    public static BufferedImage empty = Game.sprite.getSprite(16, 32, 16, 16);
 
     public static BufferedImage ceu = Game.ceu.getSprite(0, 0, 1471, 400);
+
+    public static BufferedImage grama = Game.sprite.getSprite(0,32,16,16);
+    public static BufferedImage inimigo = Game.sprite.getSprite(112, 0, 16, 16);
+    public static BufferedImage cenoura = Game.sprite.getSprite(112,16,16,16);
+
+    public static BufferedImage save = Game.sprite.getSprite(96,16,16,16);
 
     protected double x;
     protected double y;
